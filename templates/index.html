@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Resolver - Advanced DNS Lookup Tool</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .results-section {
+            margin-bottom: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .results-meta {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .results-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4facfe;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .steps-section {
+            margin-top: 30px;
+        }
+
+        .step-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            background: #28a745;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-server {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .step-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .step-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-group {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: #333;
+            word-break: break-all;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .history-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 20px 30px;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-domain {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .history-meta {
+            display: flex;
+            gap: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .history-results {
+            color: #28a745;
+            font-family: monospace;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                min-width: auto;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .step-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-globe"></i> DNS Resolver</h1>
+            <p>Advanced DNS Lookup Tool with Real-time Resolution</p>
+        </div>
+
+        <div class="main-card">
+            <div class="card-header">
+                <h2><i class="fas fa-search"></i> DNS Lookup</h2>
+                <form class="search-form" id="dnsForm">
+                    <div class="form-group">
+                        <label for="domain">Domain Name</label>
+                        <input type="text" id="domain" class="form-control" placeholder="e.g., google.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recordType">Record Type</label>
+                        <select id="recordType" class="form-control">
+                            {% for record_type in record_types %}
+                            <option value="{{ record_type.value }}">{{ record_type.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Resolve
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-body">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Resolving DNS records...</p>
+                </div>
+
+                <div id="results" style="display: none;">
+                    <div class="results-section">
+                        <div class="results-header">
+                            <div class="results-title">
+                                <i class="fas fa-list"></i> Results
+                            </div>
+                            <div class="results-meta">
+                                <span id="resolutionTime"></span>
+                                <span id="cacheStatus"></span>
+                            </div>
+                        </div>
+                        <div class="results-list" id="resultsList"></div>
+                    </div>
+
+                    <div class="steps-section" id="stepsSection" style="display: none;">
+                        <h3><i class="fas fa-route"></i> Resolution Steps</h3>
+                        <div id="stepsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-number" id="totalQueries">0</div>
+                <div class="stat-label">Total Queries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="cacheHits">0</div>
+                <div class="stat-label">Cache Hits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgTime">0ms</div>
+                <div class="stat-label">Avg Response Time</div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h3><i class="fas fa-history"></i> Query History</h3>
+                <button class="btn btn-secondary" onclick="clearHistory()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        let queryCount = 0;
+        let cacheHits = 0;
+        let totalTime = 0;
+
+        document.getElementById('dnsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const domain = document.getElementById('domain').value.trim();
+            const recordType = document.getElementById('recordType').value;
+            
+            if (!domain) {
+                showError('Please enter a domain name');
+                return;
+            }
+            
+            showLoading();
+            hideResults();
+            
+            try {
+                const response = await fetch('/resolve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        domain: domain,
+                        record_type: recordType
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResults(data);
+                    updateStats(data);
+                    loadHistory();
+                } else {
+                    showError(data.error || 'An error occurred');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const resultsList = document.getElementById('resultsList');
+            const stepsSection = document.getElementById('stepsSection');
+            const stepsList = document.getElementById('stepsList');
+            
+            // Clear previous results
+            resultsList.innerHTML = '';
+            stepsList.innerHTML = '';
+            
+            // Show resolution time and cache status
+            document.getElementById('resolutionTime').textContent = 
+                `Resolution time: ${(data.resolution_time * 1000).toFixed(2)}ms`;
+            
+            document.getElementById('cacheStatus').textContent = 
+                data.cache_hit ? '🟢 Cached' : '🔴 Fresh Query';
+            
+            // Display results
+            if (data.results && data.results.length > 0) {
+                data.results.forEach(result => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    resultItem.innerHTML = `
+                        <strong>${data.record_type} Record:</strong> ${result}
+                    `;
+                    resultsList.appendChild(resultItem);
+                });
+            } else {
+                resultsList.innerHTML = '<div class="result-item">No results found</div>';
+            }
+            
+            // Display resolution steps
+            if (data.steps && data.steps.length > 0) {
+                data.steps.forEach(step => {
+                    const stepItem = document.createElement('div');
+                    stepItem.className = 'step-item';
+                    
+                    let stepContent = `
+                        <div class="step-header">
+                            <div class="step-number">${step.step}</div>
+                            <div class="step-server">${step.server}</div>
+                            <div class="step-time">${step.response_time}</div>
+                        </div>
+                        <div class="step-details">
+                    `;
+                    
+                    if (step.success) {
+                        if (step.results && step.results.length > 0) {
+                            stepContent += `
+                                <div class="detail-group">
+                                    <div class="detail-label">Results</div>
+                                    <div class="detail-value">${step.results.join(', ')}</div>
+                                </div>
+                            `;
+                        }
+                        if (step.authorities && step.authorities.length > 0) {
+                            stepContent += `
+                                <div class="detail-group">
+                                    <div class="detail-label">Authorities</div>
+                                    <div class="detail-value">${step.authorities.join(', ')}</div>
+                                </div>
+                            `;
+                        }
+                        if (step.additionals && step.additionals.length > 0) {
+                            stepContent += `
+                                <div class="detail-group">
+                                    <div class="detail-label">Additionals</div>
+                                    <div class="detail-value">${step.additionals.join(', ')}</div>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        stepContent += `
+                            <div class="detail-group">
+                                <div class="detail-label">Error</div>
+                                <div class="detail-value">${step.error}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    stepContent += '</div>';
+                    stepItem.innerHTML = stepContent;
+                    stepsList.appendChild(stepItem);
+                });
+                
+                stepsSection.style.display = 'block';
+            }
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            const resultsList = document.getElementById('resultsList');
+            
+            resultsList.innerHTML = `<div class="error">${message}</div>`;
+            resultsDiv.style.display = 'block';
+        }
+
+        function updateStats(data) {
+            queryCount++;
+            if (data.cache_hit) cacheHits++;
+            totalTime += data.resolution_time * 1000;
+            
+            document.getElementById('totalQueries').textContent = queryCount;
+            document.getElementById('cacheHits').textContent = cacheHits;
+            document.getElementById('avgTime').textContent = 
+                `${(totalTime / queryCount).toFixed(0)}ms`;
+            
+            document.getElementById('stats').style.display = 'grid';
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/history');
+                const history = await response.json();
+                
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div style="padding: 30px; text-align: center; color: #666;">No queries yet</div>';
+                    return;
+                }
+                
+                history.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const timestamp = new Date(item.timestamp).toLocaleString();
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-domain">${item.domain}</div>
+                        <div class="history-meta">
+                            <span>${item.record_type}</span>
+                            <span>${(item.resolution_time * 1000).toFixed(2)}ms</span>
+                            <span>${timestamp}</span>
+                        </div>
+                        <div class="history-results">${item.results.join(', ')}</div>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                });
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        async function clearHistory() {
+            try {
+                await fetch('/clear-history', { method: 'POST' });
+                loadHistory();
+            } catch (error) {
+                console.error('Error clearing history:', error);
+            }
+        }
+
+        // Load history on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+        });
+    </script>
+</body>
+</html> 
